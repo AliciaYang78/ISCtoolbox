@@ -1,7 +1,7 @@
 # ISCtoolbox
 Python toolbox for performing ISC analysis, based off work done by Gangxin Li: https://github.com/Gangxin-Li/ISCanalysis
 
-#README
+# README
 How to use the toolbox: 
 1. Convert participant (vtc format) and mask (msk format) files to nifti (nii) format using the conversion scripts
 2. Check that the participant and mask files have the same dimensions

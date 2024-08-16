@@ -293,7 +293,7 @@ def compute_iscs(data):
     logger.info("finished computing ISCs")
     return np.array([iscs])
 
-def apply_FDR_corr(data, iscs_array,total_trials):
+def apply_FDR_corr(data, iscs_array, total_trials, threshold_filepath):
     n_timepoints, n_voxels, n_subjects = data.shape
     
     start_time_3 = time.time()
@@ -331,16 +331,22 @@ def apply_FDR_corr(data, iscs_array,total_trials):
 
     # find corresponding thresholds
     f = interp1d(adj_p_values, iscs_array[0])
-    new_th_05 = f(0.05)
-    new_th_01 = f(0.01)
-    new_th_001 = f(0.001)
+    th_05 = f(0.05)
+    th_01 = f(0.01)
+    th_001 = f(0.001)
 
     elapsed_time_4 = time.time() - start_time_4
     print(f"Time for FDR: {elapsed_time_4} \n")
 
-    print(f"Threshold for p = 0.05 is r-value of {new_th_05}")
-    print(f"Threshold for p = 0.01 is r-value of {new_th_01}")
-    print(f"Threshold for p = 0.001 is r-value of {new_th_001}")
+    # output thresholds to file
+
+    text_file = open(f"{threshold_filepath}_thresholds.txt", "a")
+    text_file.write("ISC Map Thresholds: \n")
+    text_file.write(f"p = 0.05  | r = {th_05} \n")
+    text_file.write(f"p = 0.01  | r = {th_01} \n")
+    text_file.write(f"p = 0.001 | r = {th_001}")
+    text_file.close()
+    print("Thresholds printed to txt file.")
 
     return None
 
@@ -472,7 +478,7 @@ def main(args):
 
     # Calculate FDR
     total_trials = 100000
-    apply_FDR_corr(data, iscs, total_trials)
+    apply_FDR_corr(data, iscs, total_trials, args.output)
     
     # Optionally apply summary statistic
     if args.summarize and len(iscs) > 1:

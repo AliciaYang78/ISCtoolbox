@@ -16,12 +16,12 @@ def get_input_details(input):
     header, data = bv.vtc.read_vtc(input)
 
     return (header['XStart'], header['XEnd'], header['YStart'], header['YEnd'], header['ZStart'], header['ZEnd'], 
-            header['VTC resolution relative to VMR (1, 2, or 3)'], header['Nr time points'])
+            header['VTC resolution relative to VMR (1, 2, or 3)'])
 
 # Create and write vmp (edited from bvbabel)
-def create_vmp(input_info, ISC_results_path, vmp_filename):
+def create_vmp(input_info, ISC_results_path, num_subjects, vmp_filename):
 
-    XStart, XEnd, YStart, YEnd, ZStart, ZEnd, Resolution, DF = input_info
+    XStart, XEnd, YStart, YEnd, ZStart, ZEnd, Resolution = input_info
 
     header = dict()
     # -------------------------------------------------------------------------
@@ -98,7 +98,7 @@ def create_vmp(input_info, ISC_results_path, vmp_filename):
 
     # Expected binary data: int (4 bytes)
     header["Map"][0]["ShowValuesAboveUpperThreshold"] = np.int32(1)
-    header["Map"][0]["DF1"] = np.int32(DF-2)
+    header["Map"][0]["DF1"] = np.int32(num_subjects*(num_subjects-1)-2)
     header["Map"][0]["DF2"] = np.int32(0)
 
     # Expected binary data: char (1 byte)
@@ -138,8 +138,11 @@ if __name__ == "__main__":
     input_filepath = "[insert filepath here]"
     # Insert path to ISC analysis results file to convert to vmp
     ISC_filepath = "[insert filepath here]"
+    # Enter number of subjects used in the ISC analysis
+    num_subjects = 20
     # Type in name of new vmp file
     vmp_filename = "isc_result.vmp"
     
+    
     input_info = get_input_details(input_filepath)
-    create_vmp(input_info, ISC_filepath, vmp_filename)
+    create_vmp(input_info, ISC_filepath, num_subjects, vmp_filename)

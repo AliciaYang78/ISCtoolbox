@@ -64,7 +64,7 @@ def vtc_to_nii(filepath):
 
 if __name__ == "__main__":
     # Insert path to vtc file you want to convert
-    filepath = "/Users/Alici/Documents/College/MIT/2023-2024/MISTI UK/Project Materials/ISCanalysis/movie-data/XHN30_RUN5_MNI_3x1.0MM_new.vtc"
+    filepath = "[insert filepath here]"
     vtc_to_nii(filepath)
 
 

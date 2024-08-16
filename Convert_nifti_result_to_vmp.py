@@ -135,11 +135,11 @@ def create_vmp(input_info, ISC_results_path, vmp_filename):
 if __name__ == "__main__":
 
     # Insert path to input/participant vtc file being analyzed
-    input_filepath = "/Users/Alici/Documents/College/MIT/2023-2024/MISTI UK/Project Materials/ISCtoolbox/ISCanalysis/movie-data/hide-input/AGA15_RUN5_MNI_3x1.0MM_new.vtc"
+    input_filepath = "[insert filepath here]"
     # Insert path to ISC analysis results file to convert to vmp
-    ISC_filepath = "/Users/Alici/Documents/College/MIT/2023-2024/MISTI UK/Project Materials/ISCtoolbox/ISCanalysis/movie-data/isc_20.nii.gz"
+    ISC_filepath = "[insert filepath here]"
     # Type in name of new vmp file
-    vmp_filename = "new_isc_vmp_test.vmp"
+    vmp_filename = "isc_result.vmp"
     
     input_info = get_input_details(input_filepath)
     create_vmp(input_info, ISC_filepath, vmp_filename)

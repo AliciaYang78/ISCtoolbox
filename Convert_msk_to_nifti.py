@@ -52,6 +52,6 @@ def msk_to_nii(filepath):
 
 if __name__ == "__main__":
     # Insert path to mask file you want to convert
-    filepath = "/Users/Alici/Documents/College/MIT/2023-2024/MISTI UK/Project Materials/ISCtoolbox/ISCanalysis/movie-data/mask-files/average_vtc_mask_BBR.msk"
+    filepath = "[insert filepath here]"
     msk_to_nii(filepath)
 

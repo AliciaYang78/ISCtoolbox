@@ -8,10 +8,8 @@ import textwrap
 from glob import glob
 import numpy as np
 import nibabel as nb
-from scipy.stats import pearsonr
-from scipy.stats import zscore
-from scipy.stats import norm
-from scipy.stats import false_discovery_control
+from scipy.stats import norm, t, pearsonr, zscore, ecdf
+import fdc
 from scipy.interpolate import interp1d
 import time
 
@@ -318,22 +316,47 @@ def apply_FDR_corr(data, iscs_array, total_trials, threshold_filepath):
         all_coeffs.append(corr_coeff)
 
     elapsed_time_3 = time.time() - start_time_3
-    print(f"Time for boostrap sampling with {total_trials} trials: {elapsed_time_3}")
+    print(f"Time for bootstrap sampling with {total_trials} trials: {elapsed_time_3}")
 
     # running FDR
     start_time_4 = time.time()
 
-    samp_mean = np.mean(all_coeffs)
-    samp_sd = np.std(all_coeffs)
-    z_scores = (iscs_array[0] - samp_mean)/samp_sd
-    p_values = norm.sf(abs(z_scores))*2
-    adj_p_values = false_discovery_control(p_values)
+    # calculate p-values using ecdf
+    isc_ecdf = ecdf(all_coeffs)
+    p_values = 1 - isc_ecdf.cdf.evaluate(iscs_array[0])
 
+    # adjust with FDR
+    adj_p_values_1 = fdc.false_discovery_control(p_values, method = 'bh')
+    adj_p_values_2 = fdc.false_discovery_control(p_values, method = 'by')
+    
     # find corresponding thresholds
-    f = interp1d(adj_p_values, iscs_array[0])
-    th_05 = f(0.05)
-    th_01 = f(0.01)
-    th_001 = f(0.001)
+    f = interp1d(adj_p_values_1, iscs_array[0])
+    g = interp1d(adj_p_values_2, iscs_array[0])
+    
+    try:
+        bh_05 = f(0.05)
+    except:
+        bh_05 = None
+    try:
+        bh_01 = f(0.01)
+    except:
+        bh_01 = None
+    try:
+        bh_001 = f(0.001)
+    except:
+        bh_001 = None
+    try:
+        by_05 = g(0.05)
+    except:
+        by_05 = None
+    try:
+        by_01 = g(0.01)
+    except:
+        by_01 = None
+    try:
+        by_001 = g(0.001)
+    except:
+        by_001 = None
 
     elapsed_time_4 = time.time() - start_time_4
     print(f"Time for FDR: {elapsed_time_4} \n")
@@ -341,11 +364,14 @@ def apply_FDR_corr(data, iscs_array, total_trials, threshold_filepath):
     # output thresholds to file
 
     text_file = open(f"{threshold_filepath}_thresholds.txt", "a")
-    text_file.write("ISC Map Thresholds: \n")
-    text_file.write(f"p = 0.05  | r = {th_05} \n")
-    text_file.write(f"p = 0.01  | r = {th_01} \n")
-    text_file.write(f"p = 0.001 | r = {th_001}")
-    text_file.close()
+    with open(f"{threshold_filepath}_thresholds.txt", "w") as text_file:
+        text_file.truncate(0)
+        text_file.write("ISC Map Thresholds: \n")
+        text_file.write(" p-value  |           bh           |            by           \n")
+        text_file.write(f"p = 0.05  | r = {bh_05} | r = {by_05} \n")
+        text_file.write(f"p = 0.01  | r = {bh_01} | r = {by_01} \n")
+        text_file.write(f"p = 0.001 | r = {bh_001} | r = {by_001} \n \n")
+        text_file.close()
     print("Thresholds printed to txt file.")
 
     return None
